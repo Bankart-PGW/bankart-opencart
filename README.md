@@ -4,7 +4,7 @@
 1. Download .zip from GitHub repository.
 1. Unzip the .zip file
 1. Open extracted file 
-1. Now zip the content off folder `bankart-opencart-master` (`upload` folder, `composer.json`) to new .zip with name `xxxx.ocmod.zip` where xxxx is any name
+1. Compress the content of folder `bankart-opencart-master` (`upload` folder, `composer.json`) to new .zip with name `xxxx.ocmod.zip` where xxxx is any name
 
 ## Installation
 
