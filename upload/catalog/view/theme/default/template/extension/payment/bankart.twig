@@ -1,0 +1,102 @@
+<link href="catalog/view/theme/default/stylesheet/bankart.css" rel="stylesheet">
+
+{% if credit_cards|length > 1 %}
+    <p>{{ credit_card_type_prompt }}</p>
+{% endif %}
+
+<div id="bankart-type-buttons" class="buttons" style="display: {{ (credit_cards|length > 1) ? 'block' : 'none' }} !important; margin: 1em 0;">
+    {% for credit_card in credit_cards %}
+        <button type="button" class="bankart-btn" data-card-type="{{ credit_card.type }}">
+        {#    <img src="/image/catalog/bankart_gateway/cc/{{ credit_card.type }}.svg" style="height: 28px;margin-right: 10px" alt="{{ credit_card.title }}"> #}
+            {{ credit_card.title }}
+        </button>
+    {% endfor %}
+</div>
+
+<form id="bankart_gateway_form" action="{{ action }}" enctype="multipart/form-data" method="post" class="form">
+    <input type="hidden" name="card_type" id="bankart_gateway_card_type">
+    <input type="hidden" name="token" id="bankart_gateway_token">
+
+    <div id="bankart-payment-form" style="display: none !important">
+        <div class="bankart-row">
+            <div class="bankart-col">
+                <label for="bankart-card_holder" class="bankart-label">{{ card_holder }}</label>
+            </div>
+            <div class="bankart-col-2">
+                <input type="text" class="bankart-input-wrapper bankart-input" id="bankart-card_holder" maxlength="26" autocomplete="cc-name">
+                <div id="bankart-error-card_holder-blank" class="bankart-error-text" style="display: none !important;">{{ card_holder_missing }}</div>
+            </div>
+        </div>
+        <div class="bankart-row">
+            <div class="bankart-col">
+                <label for="bankart-card-number" class="bankart-label">{{ card_number }}</label>
+            </div>
+            <div class="bankart-col-2">
+                <div class="bankart-input-wrapper" id="bankart-card-number"></div>
+                <div id="bankart-error-number-blank" class="bankart-error-text" style="display: none !important;">{{ card_number_missing }}</div>
+                <div id="bankart-error-number-invalid" class="bankart-error-text" style="display: none !important;">{{ card_number_invalid }}</div>
+            </div>
+        </div>
+        <div class="bankart-row">
+            <div class="bankart-col">
+                <label for="bankart-cvv" class="bankart-label">{{ card_cvv }}</label>
+            </div>
+            <div class="bankart-col-2">
+                <div class="bankart-input-wrapper" id="bankart-cvv"></div>
+                <div id="bankart-error-cvv-blank" class="bankart-error-text" style="display: none !important;">{{ card_cvv_missing }}</div>
+                <div id="bankart-error-cvv-invalid" class="bankart-error-text" style="display: none !important;">{{ card_cvv_invalid }}</div>
+            </div>
+        </div>
+        <div class="bankart-row">
+            <div class="bankart-col">
+                <label for="bankart-expiry" class="bankart-label">{{ card_expiry_date }}</label>
+            </div>
+            <div class="bankart-col-2">
+                <select type="text" class="bankart-input-wrapper bankart-date" id="bankart-expiry-month" autocomplete="cc-exp-month">
+                    <option value="" selected="selected">--</option>
+                    {% for month in months %}
+                        <option value="{{ month }}">{{ month }}</option>
+                    {% endfor %}
+                </select>
+                <select type="text" class="bankart-input-wrapper bankart-date-2" id="bankart-expiry-year" autocomplete="cc-exp-year">
+                    <option value="" selected="selected">----</option>'
+                       {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option>  
+                        {% endfor %}
+                </select>
+                <div id="bankart-error-year-blank" class="bankart-error-text" style="display: none !important;">{{ card_expiry_date_missing }}</div>
+                <div id="bankart-error-year-expired" class="bankart-error-text" style="display: none !important;">{{ card_expired }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bankart-instalments-form" style="display: none !important">
+        <div class="bankart-row">
+            <div class="bankart-text"> {{ instalments_description }} </div>
+        </div>
+        <div class="bankart-row">
+            <div class="bankart-col">
+                <label for="bankart-instalments" class="bankart-label"> {{ instalments_number }} </label>
+            </div>                        
+            <div class="bankart-col-2">
+                <select type="text" id="bankart-instalments" name="bankart-instalments" class="bankart-input-wrapper">
+                    <option value="1" selected="selected"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="bankart-type-buttons" class="buttons clearfix">
+        <div class="pull-right">
+            <input type="button" disabled value="{{ button_confirm }}" id="bankart_gateway_form_submit" data-loading-text="{{ text_loading }}" class="btn btn-primary"/>
+        </div>
+    </div>
+</form>
+
+<script data-main="payment-js" src="{{ api_host }}js/integrated/payment.min.js"></script>
+<script>
+    window.paymentType = "{{ type }}";
+    window.cards = {{ credit_cards_json }};
+</script>
+<script src="catalog/view/javascript/bankart.js"></script>

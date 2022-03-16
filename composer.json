@@ -1,0 +1,19 @@
+{
+  "name": "bankart/bankart-opencart",
+  "description": "",
+  "type": "opencart-plugin",
+  "license": "",
+  "require": {
+    "php": ">=7.1",
+    "psr/log": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Bankart\\Client\\": "upload/system/library/bankart/client/",
+      "Bankart\\": "upload/system/library/bankart/plugin/"
+    }
+  },
+  "config": {
+    "vendor-dir": "upload/system/library/bankart/"
+  }
+}

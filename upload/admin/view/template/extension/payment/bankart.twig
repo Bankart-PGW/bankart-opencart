@@ -1,0 +1,334 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="submit" form="form-payment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{ plugin_name }}&nbsp;{{ plugin_version }}
+            </div>
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i>{{ text_edit }}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-payment" class="form-horizontal">
+                    <div class="form-group required" style="border: none; margin-top:0;">
+                        <label class="col-sm-2 control-label" for="input-status">{{ config_status }}</label>
+                        <div class="col-sm-10">
+                            <select name="{{ prefix ~ 'status' }}" id="input-status" class="form-control">
+                                {% if status %}
+                                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                                    <option value="0">{{ text_disabled }}</option>
+                                {% else %}
+                                    <option value="1">{{ text_enabled }}</option>
+                                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                                {% endif %}
+                            </select>
+                            <p class="help-block" style="margin-bottom: 0">
+                                {{ config_status_desc }}
+                            </p>
+                        </div>
+                    </div>
+                    {% for key, lang_title in title %}
+                        <div class="form-group required" style="border: none; margin-top:0;">
+                            <label class="col-sm-2 control-label" for="input-{{ title_lang }}">{{ config_title ~ ' ' ~ key|upper }}</label>
+                            <div class="col-sm-10">
+                                <input name="{{ prefix ~ 'title' }}[{{ key }}]"
+                                       id="input-title"
+                                       class="form-control"
+                                       type="text"
+                                       value="{{ lang_title }}">
+                                <p class="help-block" style="margin-bottom: 0">
+                                    {{ config_title_desc }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="form-group" style="border: none; margin-top:0;">
+                        <label class="col-sm-2 control-label" for="input-{{ config_title }}">{{ config_title }}</label>
+                        <div class="col-sm-10">
+                        {% for key, lang_title in title %}
+                            <div class="input-group form-control-static">
+                                <div class="input-group-addon">{{ key }}</div>
+                                <input name="{{ prefix ~ 'title' }}[{{ key }}]"
+                                       id="input-title"
+                                       class="form-control"
+                                       type="text"
+                                       value="{{ lang_title }}">
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group required" style="border: none; margin-top:0;">
+                        <label class="col-sm-2 control-label" for="input-sort-order">{{ config_sort_order }}</label>
+                        <div class="col-sm-10">
+                            <input name="{{ prefix ~ 'sort_order' }}"
+                                   id="input-sort-order"
+                                   class="form-control"
+                                   type="text"
+                                   value="{{ sort_order }}">
+                            <p class="help-block" style="margin-bottom: 0">
+                                {{ config_sort_order_desc }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group required" style="border: none; margin-top:0;">
+                        <label class="col-sm-2 control-label" for="select-geo-zone">{{ config_geo_zone }}</label>
+                        <div class="col-sm-10">
+                            <select name="{{ prefix ~ 'geo_zone_id' }}" id="select-geo-zone" class="form-control">
+                                <option value="0">{{ text_all_zones }}</option>
+                                {% for geo_zone in geo_zones %}
+                                    <option value="{{ geo_zone.geo_zone_id }}" {{ geo_zone.geo_zone_id == geo_zone_id ? 'selected' }}>{{ geo_zone.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group required" style="border: none; margin-top:0;">
+                        <label class="col-sm-2 control-label" for="input-total"><span data-toggle="tooltip" title="{{ config_total_help }}">{{ config_total }}</span></label>
+                        <div class="col-sm-10">
+                            <input name="{{ prefix ~ 'order_total' }}"
+                                   id="input-sort-order"
+                                   class="form-control"
+                                   type="text"
+                                   value="{{ order_total }}">
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group required" style="border: none; margin-top:0;">
+                        <label class="col-sm-2 control-label" for="input-base-url">{{ config_api_host }}</label>
+                        <div class="col-sm-10">
+                            <input name="{{ prefix ~ 'api_host' }}"
+                                   id="input-base-url"
+                                   class="form-control"
+                                   type="text"
+                                   value="{{ api_host }}">
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h3 class="panel-title">
+                        <b>{{ order_status_management_title }}</b>
+                    </h3>
+
+                    {% for bankart_order_status in bankart_order_states %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="{{ prefix ~ 'order_status_' ~ bankart_order_status.name }}"><span data-toggle="tooltip" title="{{ bankart_order_status.help }}">{{ bankart_order_status.label }}</span></label>
+                            <div class="col-sm-10">
+                                <select name="{{ prefix ~ 'order_status_' ~ bankart_order_status.name }}" id="{{ prefix ~ 'order_status_' ~ bankart_order_status.name }}" class="form-control">
+                                    {% if bankart_order_status.config == 0 %}
+                                        <option value="0" selected="selected"></option>
+                                    {% else %}
+                                        <option value="0"></option>
+                                    {% endif %}
+                                    {% for order_status in order_statuses %}
+                                        {% if order_status.order_status_id ==  bankart_order_status.config %}
+                                            <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                                        {% else %}
+                                            <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    {% for credit_card in credit_cards %}
+                        <hr>
+                        <h3 class="panel-title">
+                            <b>{{ credit_card.name }}</b>
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group required" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_status_' ~ credit_card.type }}">{{ config_status }}</label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <select name="{{ prefix ~ 'cc_status_' ~ credit_card.type }}" id="{{ prefix ~ 'cc_status_' ~ credit_card.type }}" class="form-control">
+                                            {% if credit_card.status %}
+                                                <option value="1" selected="selected">{{ text_enabled }}</option>
+                                                <option value="0">{{ text_disabled }}</option>
+                                            {% else %}
+                                                <option value="1">{{ text_enabled }}</option>
+                                                <option value="0" selected="selected">{{ text_disabled }}</option>
+                                            {% endif %}
+                                        </select>
+                                        <p class="help-block" style="margin-bottom: 0">
+                                            {{ config_cc_status_desc }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_title_' ~ credit_card.type }}">
+                                        {{ config_cc_title }}
+                                    </label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_title_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_title_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="text"
+                                               value="{{ credit_card.title }}">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_api_user_' ~ credit_card.type }}">
+                                        {{ config_cc_api_user }}
+                                    </label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_api_user_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_api_user_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="text"
+                                               value="{{ credit_card.api_user }}">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_api_password_' ~ credit_card.type }}">
+                                        {{ config_cc_api_password }}
+                                    </label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_api_password_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_api_password_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="text"
+                                               value="{{ credit_card.api_password }}">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_api_key_' ~ credit_card.type }}">
+                                        {{ config_cc_api_key }}
+                                    </label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_api_key_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_api_key_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="text"
+                                               value="{{ credit_card.api_key }}">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_api_secret_' ~ credit_card.type }}">
+                                        {{ config_cc_api_secret }}
+                                    </label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_api_secret_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_api_secret_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="text"
+                                               value="{{ credit_card.api_secret }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_method_' ~ credit_card.type }}">{{ config_cc_method }}</label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <select name="{{ prefix ~ 'cc_method_' ~ credit_card.type }}" id="{{ prefix ~ 'cc_method_' ~ credit_card.type }}" class="form-control">
+                                            {% for method, method_title in methods %}
+                                                {% if credit_card.method == method %}
+                                                    <option value="{{ method }}" selected="selected">{{ method_title }}</option>
+                                                {% else %}
+                                                    <option value="{{ method }}">{{ method_title }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_seamless_' ~ credit_card.type }}">{{ config_cc_seamless }}</label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <select name="{{ prefix ~ 'cc_seamless_' ~ credit_card.type }}" id="{{ prefix ~ 'cc_seamless_' ~ credit_card.type }}" class="form-control">
+                                            {% if credit_card.seamless %}
+                                                <option value="1" selected="selected">{{ text_enabled }}</option>
+                                                <option value="0">{{ text_disabled }}</option>
+                                            {% else %}
+                                                <option value="1">{{ text_enabled }}</option>
+                                                <option value="0" selected="selected">{{ text_disabled }}</option>
+                                            {% endif %}
+                                        </select>
+                                        <p class="help-block" style="margin-bottom: 0">
+                                            {{ config_cc_seamless_desc }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_integration_key_' ~ credit_card.type }}">{{ config_cc_integration_key }}</label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_integration_key_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_integration_key_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="text"
+                                               value="{{ credit_card.integration_key }}">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_instalments_' ~ credit_card.type }}"><span data-toggle="tooltip" title="{{ config_cc_instalments_number_help }}">{{ config_cc_instalments_number }}</span></label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <select name="{{ prefix ~ 'cc_instalments_' ~ credit_card.type }}" id="{{ prefix ~ 'cc_instalments_' ~ credit_card.type }}" class="form-control">
+                                            {% if credit_card.instalments == 1 %}
+                                                <option value="1">{{ text_disabled }}</option>
+                                            {% else %}
+                                                <option value="1" selected="selected">{{ text_disabled }}</option>
+                                            {% endif %}
+                                            {% for number in instalment_numbers %}
+                                                {% if credit_card.instalments == number %}
+                                                    <option value="{{ number }}" selected="selected">{{ number ~ ' ' ~ text_instalments }}</option>
+                                                {% else %}
+                                                    <option value="{{ number }}">{{ number ~ ' ' ~ text_instalments }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <p class="help-block" style="margin-bottom: 0">
+                                            {{ config_cc_instalments_number_desc }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_instalments_amt_' ~ credit_card.type }}">{{ config_cc_instalments_min_amt }}</label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <input name="{{ prefix ~ 'cc_instalments_amt_' ~ credit_card.type }}"
+                                               id="{{ prefix ~ 'cc_instalments_amt_' ~ credit_card.type }}"
+                                               class="form-control"
+                                               type="number"
+                                               value="{{ credit_card.instalments_amount }}">
+                                        <p class="help-block" style="margin-bottom: 0">
+                                            {{ config_cc_instalments_min_amt_desc }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: none; margin-top:0;">
+                                    <label class="col-sm-2 col-md-4 control-label" for="{{ prefix ~ 'cc_instalments_geo_zone_' ~ credit_card.type }}"><span data-toggle="tooltip" title="{{ config_cc_instalments_geo_zone_help }}">{{ config_cc_instalments_geo_zone }}</span></label>
+                                    <div class="col-sm-10 col-md-8">
+                                        <select name="{{ prefix ~ 'cc_instalments_geo_zone_' ~ credit_card.type }}" id="{{ prefix ~ 'cc_instalments_geo_zone_' ~ credit_card.type }}" class="form-control">
+                                            <option value="0">{{ text_all_zones }}</option>
+                                            {% for geo_zone in geo_zones %}
+                                                <option value="{{ geo_zone.geo_zone_id }}" {{ geo_zone.geo_zone_id == credit_card.instalments_geo_zone ? 'selected' }}>{{ geo_zone.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{ footer }}
